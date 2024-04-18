@@ -7,7 +7,7 @@ export * from './method-options.js';
 export declare const networks: {
     readonly futurenet: {
         readonly networkPassphrase: "Test SDF Future Network ; October 2022";
-        readonly contractId: "CCQJNFGDMOB6OEASW2NWRHA6HARCJPTIIQT3U7WS5QMI6OD2H4N7RXBL";
+        readonly contractId: "CCJTYCGJ2JJPD6O7AYFVPYVNTOXKGX5X2WNVPIZIOKBWNWY7K7DYKM2C";
     };
 };
 /**
