@@ -40,7 +40,7 @@ async function approve(tokenId: string, amount: number) {
         contract.call("allowance",
             new StellarSdk.Address(walletAddr).toScVal(),
             new StellarSdk.Address(CONTRACT_ID).toScVal()),
-        )
+    )
         .setTimeout(180)
         .build();
     const resp: any = await server.simulateTransaction(transaction);
@@ -51,7 +51,7 @@ async function approve(tokenId: string, amount: number) {
     console.log(`[DAVID] APPROVE RESP = ${currentAllowed}`);
 
     if (amount > currentAllowed) {
-        await executeTransaction(
+        const res = await executeTransaction(
             contract.call('approve',
                 new StellarSdk.Address(walletAddr).toScVal(),
                 new StellarSdk.Address(CONTRACT_ID).toScVal(),
@@ -60,7 +60,8 @@ async function approve(tokenId: string, amount: number) {
                     lo: new StellarSdk.xdr.Int64('1000000000000'),
                 })),
             ),
-        ),
+        );
+        console.log(`[DAVID] approved :: ${res}`);
     }
 }
 
