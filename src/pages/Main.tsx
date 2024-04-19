@@ -29,6 +29,41 @@ const server = new StellarSdk.SorobanRpc.Server(
     { allowHttp: true },
 );
 
+async function approve(tokenId: string, amount: number) {
+    const walletAddr = await freighter.getPublicKey();
+    const sourceAcc = await server.getAccount(walletAddr);
+    const contract = new StellarSdk.Contract(tokenId);
+    const transaction = new StellarSdk.TransactionBuilder(sourceAcc, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: StellarSdk.Networks.FUTURENET,
+    }).addOperation(
+        contract.call("allowance",
+            new StellarSdk.Address(walletAddr).toScVal(),
+            new StellarSdk.Address(CONTRACT_ID).toScVal()),
+        )
+        .setTimeout(180)
+        .build();
+    const resp: any = await server.simulateTransaction(transaction);
+    // const attributes = resp?.result?.retval?.value?.attributes;
+    const attributes = resp?.result?.retval?._value?._attributes;
+    const allowdValStr = String(attributes?.hi?._value) + String(attributes?.lo?._value);
+    const currentAllowed = parseInt(allowdValStr, 10);
+    console.log(`[DAVID] APPROVE RESP = ${currentAllowed}`);
+
+    if (amount > currentAllowed) {
+        await executeTransaction(
+            contract.call('approve',
+                new StellarSdk.Address(walletAddr).toScVal(),
+                new StellarSdk.Address(CONTRACT_ID).toScVal(),
+                StellarSdk.xdr.ScVal.scvI128(new StellarSdk.xdr.Int128Parts({
+                    hi: new StellarSdk.xdr.Int64(0),
+                    lo: new StellarSdk.xdr.Int64('1000000000000'),
+                })),
+            ),
+        ),
+    }
+}
+
 async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk.Operation.InvokeHostFunction>): Promise<number> {
     const sourceAcc = await server.getAccount(await freighter.getPublicKey());
     const transaction0 = new StellarSdk.TransactionBuilder(sourceAcc, {
@@ -152,16 +187,16 @@ function Main() {
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
 
                 const res = await executeTransaction(contract.call('allow_token',
-                        new StellarSdk.Address(tokenId).toScVal(),
-                    ));
+                    new StellarSdk.Address(tokenId).toScVal(),
+                ));
                 console.log('result:', res);
             }}> Allow Token </button>
             <button onClick={async () => {
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
 
                 const res = await executeTransaction(contract.call('disallow_token',
-                        StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(tokenId).toScAddress()),
-                    ));
+                    StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(tokenId).toScAddress()),
+                ));
                 console.log('result:', res);
             }}> DisAllow Token</button>
 
@@ -235,12 +270,13 @@ function Main() {
                 // }
 
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
+                await approve(offeredToken, offeredTokenAmount);
                 const res = await executeTransaction(
                     contract.call('create_offer',
                         StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(await freighter.getPublicKey()).toScAddress()),
                         StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(offeredToken).toScAddress()),
                         StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(requestedToken).toScAddress()),
-                        StellarSdk.xdr.ScVal.scvU32(/* Date.now() */ 1234567890),
+                        StellarSdk.xdr.ScVal.scvU32(/* Date.now() */ 1000),
                         StellarSdk.xdr.ScVal.scvU64(new StellarSdk.xdr.Uint64(offeredTokenAmount)),
                         StellarSdk.xdr.ScVal.scvU64(new StellarSdk.xdr.Uint64(requestedTokenAmount)),
                         StellarSdk.xdr.ScVal.scvU64(new StellarSdk.xdr.Uint64(minRequestedTokenAmount)),
