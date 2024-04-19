@@ -57,7 +57,7 @@ async function approve(tokenId: string, amount: number) {
                 new StellarSdk.Address(CONTRACT_ID).toScVal(),
                 StellarSdk.xdr.ScVal.scvI128(new StellarSdk.xdr.Int128Parts({
                     hi: new StellarSdk.xdr.Int64(0),
-                    lo: new StellarSdk.xdr.Int64(1000000000000),
+                    lo: new StellarSdk.xdr.Int64(10000000000),
                 })),
             ),
         );
