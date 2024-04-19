@@ -56,10 +56,6 @@ async function approve(tokenId: string, amount: number) {
                 new StellarSdk.Address(walletAddr).toScVal(),
                 new StellarSdk.Address(CONTRACT_ID).toScVal(),
                 StellarSdk.nativeToScVal(10000000000000, {type: 'i128'}),
-                // StellarSdk.xdr.ScVal.scvI128(new StellarSdk.xdr.Int128Parts({
-                //     hi: new StellarSdk.xdr.Int64(0),
-                //     lo: new StellarSdk.xdr.Int64(10000000000),
-                // })),
                 StellarSdk.xdr.ScVal.scvU32(2000000),
             ),
         );
