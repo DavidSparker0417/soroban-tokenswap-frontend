@@ -437,6 +437,7 @@ function Main() {
                 // }
 
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
+                await approve(REQ_TOKEN, amount);
                 const res = await executeTransaction(
                     contract.call('accept_offer',
                         StellarSdk.xdr.ScVal.scvAddress(StellarSdk.Address.fromString(await freighter.getPublicKey()).toScAddress()),
