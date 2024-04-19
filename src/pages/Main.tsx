@@ -48,7 +48,7 @@ async function approve(tokenId: string, amount: number) {
     const attributes = resp?.result?.retval?._value?._attributes;
     const allowdValStr = String(attributes?.hi?._value) + String(attributes?.lo?._value);
     const currentAllowed = parseInt(allowdValStr, 10);
-    console.log(`[DAVID] APPROVE RESP = ${currentAllowed}`);
+    console.log(`[CRYPTOPRINCE]APPROVE RESP = ${currentAllowed}`);
 
     if (amount > currentAllowed) {
         const res = await executeTransaction(
@@ -59,7 +59,7 @@ async function approve(tokenId: string, amount: number) {
                 StellarSdk.xdr.ScVal.scvU32(2000000),
             ),
         );
-        console.log(`[DAVID] approved :: ${res}`);
+        console.log(`[CRYPTOPRINCE]approved :: ${res}`);
     }
 }
 
@@ -72,7 +72,7 @@ async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk
         .addMemo(StellarSdk.Memo.text("Testing"))
         .setTimeout(180)
         .build();
-    console.log(`[DAVID] executeTransaction on ${CONTRACT_ID} ...`);
+    console.log(`[CRYPTOPRINCE]executeTransaction on ${CONTRACT_ID} ...`);
     const transaction = await server.prepareTransaction(transaction0);
     // transaction.sign(accKeypair);
     const signedXDR = await freighter.signTransaction(transaction.toXDR(), {
