@@ -59,6 +59,7 @@ async function approve(tokenId: string, amount: number) {
                     hi: new StellarSdk.xdr.Int64(0),
                     lo: new StellarSdk.xdr.Int64(10000000000),
                 })),
+                StellarSdk.xdr.ScVal.scvU32(2000000)
             ),
         );
         console.log(`[DAVID] approved :: ${res}`);
