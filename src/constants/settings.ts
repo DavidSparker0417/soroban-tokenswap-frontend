@@ -35,7 +35,7 @@ export const networkConfig: NetworkConfig = {
     stellarExpertLiquidityPoolUrl: `${STELLAR_EXPERT_URL}/testnet/liquidity-pool/`,
   },
   public: {
-    url: "https://soroban-mainnet.nownodes.io",
+    url: "https://horizon.stellar.org",
     network: StellarSdk.Networks.PUBLIC,
     stellarExpertTxUrl: `${STELLAR_EXPERT_URL}/futurenet/tx/`,
     stellarExpertAccountUrl: `${STELLAR_EXPERT_URL}/futurenet/account/`,
