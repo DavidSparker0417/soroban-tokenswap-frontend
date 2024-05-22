@@ -4,6 +4,7 @@ import './Main.css';
 import * as StellarSdk from "@stellar/stellar-sdk";
 import freighter from "@stellar/freighter-api";
 import * as tswap from "token-swap";
+import { networkConfig } from "constants/settings";
 
 // working around ESM compatibility issues
 // const {
@@ -14,7 +15,7 @@ import * as tswap from "token-swap";
 // } = freighter;
 
 const log = console.log;
-const rpc = "https://horizon.stellar.org";
+const rpc = networkConfig.public.url;
 const PASSPHRASE = StellarSdk.Networks.PUBLIC;
 // const CONTRACT_ID = tswap.networks.mainnet.contractId;
 const CONTRACT_ID = "CBOC24RLZHETOADX2KHKO5WWV4K6E3DKX6T5SUUPKJXI6JC2SSX47BUI";
@@ -63,6 +64,7 @@ async function approve(tokenId: string, amount: number) {
 
 async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk.Operation.InvokeHostFunction>): Promise<number> {
     const sourceAcc = await server.getAccount(await freighter.getPublicKey());
+    log(`[DAVID] executeTransaction freighter net = ${await freighter.getNetwork()}`)
     const transaction0 = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
         networkPassphrase: PASSPHRASE,
