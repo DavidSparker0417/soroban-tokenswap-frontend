@@ -24,7 +24,7 @@ const REQ_TOKEN = "CDCLM36CAZX5PN5WBC2GYPYFP5LK75OXR3UANYCWCGL3DWZLAXWNGKID";
 const FEE_COLLECTOR = "GDORZQZP6XJ7JHHZW6PJNTR7LBFNT32LMY7XJ6TLVFFJD6HIKPFYCPTD";
 
 const server = new StellarSdk.SorobanRpc.Server(
-    rpc,
+    "https://soroban-mainnet.nownodes.io",
     { allowHttp: true },
 );
 
@@ -63,7 +63,6 @@ async function approve(tokenId: string, amount: number) {
 }
 
 async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk.Operation.InvokeHostFunction>): Promise<number> {
-    console.log(`[DAVID] executeTransaction freighter net = ${await freighter.getNetwork()}`);
     const sourceAcc = await server.getAccount(await freighter.getPublicKey());
     const transaction0 = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
