@@ -63,8 +63,8 @@ async function approve(tokenId: string, amount: number) {
 }
 
 async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk.Operation.InvokeHostFunction>): Promise<number> {
-    const sourceAcc = await server.getAccount(await freighter.getPublicKey());
     console.log(`[DAVID] executeTransaction freighter net = ${await freighter.getNetwork()}`);
+    const sourceAcc = await server.getAccount(await freighter.getPublicKey());
     const transaction0 = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
         networkPassphrase: PASSPHRASE,
