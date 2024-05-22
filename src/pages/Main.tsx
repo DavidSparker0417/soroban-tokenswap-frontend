@@ -14,7 +14,7 @@ import * as tswap from "token-swap";
 // } = freighter;
 
 const log = console.log;
-const rpc = "https://soroban-mainnet.nownodes.io";
+const rpc = "https://horizon.stellar.org";
 const PASSPHRASE = StellarSdk.Networks.PUBLIC;
 // const CONTRACT_ID = tswap.networks.mainnet.contractId;
 const CONTRACT_ID = "CBOC24RLZHETOADX2KHKO5WWV4K6E3DKX6T5SUUPKJXI6JC2SSX47BUI";
