@@ -189,7 +189,7 @@ function Main() {
             }} />
             <button onClick={async () => {
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
-                console.log(`[DAVID] -------- set_fee ------`);
+                console.log(`[DAVID] -------- set_fee (pubKey = ${await freighter.getPublicKey()}) ------`);
                 const res = await executeTransaction(
                     contract.call("set_fee",
                         StellarSdk.xdr.ScVal.scvU32(fee * 100),
