@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import './Main.css';
 // import { Connectivity, EditOfferInput } from './connectivity';
 import * as StellarSdk from "@stellar/stellar-sdk";
@@ -14,16 +14,14 @@ import * as tswap from "token-swap";
 // } = freighter;
 
 const log = console.log;
-const rpc = "https://rpc-futurenet.stellar.org";
-const CONTRACT_ID = tswap.networks.futurenet.contractId;
-const OFFERING_TOKEN = "CDYXV4NZOTZKZ6H2DMISPOXHMARV4V2M4NSGS4HWG4OOCAVRT4PWKRJE";
-const REQ_TOKEN = "CCEWHPC3C3ELHMMZAM3V32NIHTGAWO66HNCYP26Q3FMKIS7VSSCWPPZX";
+const rpc = "https://soroban-mainnet.nownodes.io";
+const PASSPHRASE = StellarSdk.Networks.PUBLIC;
+// const CONTRACT_ID = tswap.networks.mainnet.contractId;
+const CONTRACT_ID = "CBOC24RLZHETOADX2KHKO5WWV4K6E3DKX6T5SUUPKJXI6JC2SSX47BUI";
+const OFFERING_TOKEN = "CAX64KHXAEDPYEN53BMOOFM4NHHUQHQMXZHSC3LGGRDPK4MJIGPMOPOS";
+const REQ_TOKEN = "CDCLM36CAZX5PN5WBC2GYPYFP5LK75OXR3UANYCWCGL3DWZLAXWNGKID";
 const FEE_COLLECTOR = "GDORZQZP6XJ7JHHZW6PJNTR7LBFNT32LMY7XJ6TLVFFJD6HIKPFYCPTD";
-const tokenSwap = new tswap.Contract({
-    contractId: CONTRACT_ID,
-    networkPassphrase: tswap.networks.futurenet.networkPassphrase,
-    rpcUrl: rpc,
-});
+
 const server = new StellarSdk.SorobanRpc.Server(
     rpc,
     { allowHttp: true },
@@ -35,7 +33,7 @@ async function approve(tokenId: string, amount: number) {
     const contract = new StellarSdk.Contract(tokenId);
     const transaction = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
-        networkPassphrase: StellarSdk.Networks.FUTURENET,
+        networkPassphrase: PASSPHRASE,
     }).addOperation(
         contract.call("allowance",
             new StellarSdk.Address(walletAddr).toScVal(),
@@ -67,7 +65,7 @@ async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk
     const sourceAcc = await server.getAccount(await freighter.getPublicKey());
     const transaction0 = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
-        networkPassphrase: StellarSdk.Networks.FUTURENET,
+        networkPassphrase: PASSPHRASE,
     }).addOperation(operation)
         .addMemo(StellarSdk.Memo.text("Testing"))
         .setTimeout(180)
@@ -76,10 +74,10 @@ async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk
     const transaction = await server.prepareTransaction(transaction0);
     // transaction.sign(accKeypair);
     const signedXDR = await freighter.signTransaction(transaction.toXDR(), {
-        networkPassphrase: StellarSdk.Networks.FUTURENET,
+        networkPassphrase: PASSPHRASE,
     });
     const txEnvelope = StellarSdk.xdr.TransactionEnvelope.fromXDR(signedXDR, 'base64');
-    const tx = new StellarSdk.Transaction(txEnvelope, StellarSdk.Networks.FUTURENET);
+    const tx = new StellarSdk.Transaction(txEnvelope, PASSPHRASE);
     try {
         const response = await server.sendTransaction(tx);
         console.log('Sent! Transaction Hash:', response.hash);
@@ -117,15 +115,6 @@ async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk
     return 0;
 }
 
-async function checkError() {
-    try {
-        const errorCode = await tokenSwap.getError();
-        console.log("errorCode:", errorCode);
-    } catch (err) {
-        console.error(err);
-    }
-}
-
 function Main() {
     const [fee, setFee] = useState(0.25);
     const [feeWallet, setFeeWallet] = useState(FEE_COLLECTOR);
@@ -141,8 +130,39 @@ function Main() {
     const [offerId, setOfferId] = useState(0);
     const [newRequestedTokenAmount, setNewRequestedTokenAmount] = useState(800000);
     const [newMinRequestedTokenAmount, setNewMinRequestedTokenAmount] = useState(200000);
+    const [wallet, setWallet] = useState("");
+    const [tokenSwap, setTokenSwap] = useState<any>();
 
     const [amount, setAmount] = useState(100000);
+
+    async function checkError() {
+        try {
+            const errorCode = await tokenSwap?.get_error();
+            console.log("errorCode:", errorCode);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+        
+    useEffect(() => {
+        const getWalletAddress = async () => {
+            const pubKey = await freighter.getPublicKey();
+            setWallet(pubKey);
+        };
+        getWalletAddress();
+    }, []);
+
+    useEffect(() => {
+        if (wallet === "") {
+            return;
+        }
+        setTokenSwap(new tswap.Client({
+            publicKey: wallet, 
+            contractId: CONTRACT_ID, 
+            networkPassphrase: PASSPHRASE,
+            rpcUrl: rpc,
+        }));
+    }, [wallet]);
 
     return (
         <>
@@ -285,7 +305,7 @@ function Main() {
 
                 if (res === 0) {
                     try {
-                        const offerCount = (await tokenSwap.countOffers()).result;
+                        const offerCount = (await tokenSwap?.count_offers())?.result;
                         const newOfferId = offerCount - 1;
                         setOfferId(newOfferId);
                         console.log("offerId: ", newOfferId);
@@ -464,16 +484,16 @@ function Main() {
             }}> Get full info </button> */}
 
             <button onClick={async () => {
-                try {
-                    const balances = await tokenSwap.checkBalances({
-                        account: await freighter.getPublicKey(),
-                        send_token: offeredToken,
-                        recv_token: requestedToken,
-                    });
-                    console.log(`Balance = ${balances.result}`);
-                } catch (err) {
-                    console.error(err);
-                }
+                // try {
+                //     const balances = await tokenSwap.checkBalances({
+                //         account: await freighter.getPublicKey(),
+                //         send_token: offeredToken,
+                //         recv_token: requestedToken,
+                //     });
+                //     console.log(`Balance = ${balances.result}`);
+                // } catch (err) {
+                //     console.error(err);
+                // }
             }}> Check Balances </button>
         </>);
 }

@@ -1,4 +1,4 @@
-import StellarSdk from "stellar-sdk";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 export const TX_HISTORY_LIMIT = 100;
 export const TX_HISTORY_MIN_AMOUNT = 0.5;
@@ -35,8 +35,8 @@ export const networkConfig: NetworkConfig = {
     stellarExpertLiquidityPoolUrl: `${STELLAR_EXPERT_URL}/testnet/liquidity-pool/`,
   },
   public: {
-    url: "https://horizon-futurenet.stellar.org",
-    network: StellarSdk.Networks.TESTNET,
+    url: "https://soroban-mainnet.nownodes.io",
+    network: StellarSdk.Networks.PUBLIC,
     stellarExpertTxUrl: `${STELLAR_EXPERT_URL}/futurenet/tx/`,
     stellarExpertAccountUrl: `${STELLAR_EXPERT_URL}/futurenet/account/`,
     stellarExpertAssetUrl: `${STELLAR_EXPERT_URL}/futurenet/asset/`,

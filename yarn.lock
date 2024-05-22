@@ -1925,7 +1925,12 @@
   resolved "https://registry.yarnpkg.com/@stellar/eslint-config/-/eslint-config-2.1.2.tgz#95c223d10a5dfc2c89486e76cc7c9f1b56df3564"
   integrity sha512-5aUkncDMmx0SvVlZD4rld5snGKt3mc0Gno1Jik3Pp31HUmpgrkRUD3ZZekEOqB9mDKadZhQZNNsS0jhyuXaayw==
 
-"@stellar/freighter-api@1.7.1", "@stellar/freighter-api@^1.1.2", "@stellar/freighter-api@^1.4.0", "@stellar/freighter-api@^1.5.1":
+"@stellar/freighter-api@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@stellar/freighter-api/-/freighter-api-2.0.0.tgz#488915a4aa0cec8c9a3fc84ef31e21cd5ec41343"
+  integrity sha512-j/R7MLPL8S3QhwOEdAxSl7MgWBTXWlOXQKQyXR8mPk1JMKKR4tF8e4U+Fs9TPQH0HZoYqfVDvLOOUrTMMY058Q==
+
+"@stellar/freighter-api@^1.1.2", "@stellar/freighter-api@^1.4.0", "@stellar/freighter-api@^1.5.1":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@stellar/freighter-api/-/freighter-api-1.7.1.tgz#d62b432abc7e0140a6025cd672455ecee7b3199a"
   integrity sha512-XvPO+XgEbkeP0VhP0U1edOkds+rGS28+y8GRGbCVXeZ9ZslbWqRFQoETAdX8IXGuykk2ib/aPokiLc5ZaWYP7w==
@@ -1940,7 +1945,7 @@
     lodash.throttle "^4.1.1"
     typescript "^4.4.3"
 
-"@stellar/js-xdr@^3.0.1", "@stellar/js-xdr@^3.1.1":
+"@stellar/js-xdr@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.1.tgz#be0ff90c8a861d6e1101bca130fa20e74d5599bb"
   integrity sha512-3gnPjAz78htgqsNEDkEsKHKosV2BF2iZkoHCNxpmZwUxiPsw+2VaXMed8RRMe0rGk3d5GZe7RrSba8zV80J3Ag==
@@ -1949,20 +1954,6 @@
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@stellar/prettier-config/-/prettier-config-1.2.0.tgz#b27c411e0c4c63b2d76332c239084e682c37468f"
   integrity sha512-oL9qJ7+7aWnImpbcldroQrvtMCZ9yx4JL/tmDZ860RpBQd2ahkc8bX6/k2ehFK8gpb9ltYu4mtU49wufUuYhGg==
-
-"@stellar/stellar-base@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-10.0.1.tgz#cf4458e081f694109422521562e53e642c29991b"
-  integrity sha512-BDbx7VHOEQh+4J3Q+gStNXgPaNckVFmD4aOlBBGwxlF6vPFmVnW8IoJdkX7T58zpX55eWI6DXvEhDBlrqTlhAQ==
-  dependencies:
-    "@stellar/js-xdr" "^3.0.1"
-    base32.js "^0.1.0"
-    bignumber.js "^9.1.2"
-    buffer "^6.0.3"
-    sha.js "^2.3.6"
-    tweetnacl "^1.0.3"
-  optionalDependencies:
-    sodium-native "^4.0.1"
 
 "@stellar/stellar-base@^11.0.1":
   version "11.0.1"
@@ -1978,20 +1969,7 @@
   optionalDependencies:
     sodium-native "^4.0.10"
 
-"@stellar/stellar-sdk@11.2.0":
-  version "11.2.0"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-sdk/-/stellar-sdk-11.2.0.tgz#1ddc98f5f6fa9cca8629a83c81e841c996f0287b"
-  integrity sha512-qInRR+mLLl9O/AI6Q+Sr19RZeYJtlNoJQJi3pch5BYoMvVhjO8IU8AhHADP//Zmc2osyogwPuqXBiFdaGlfHWA==
-  dependencies:
-    "@stellar/stellar-base" "10.0.1"
-    axios "^1.6.5"
-    bignumber.js "^9.1.2"
-    eventsource "^2.0.2"
-    randombytes "^2.1.0"
-    toml "^3.0.0"
-    urijs "^1.19.1"
-
-"@stellar/stellar-sdk@^11.3.0":
+"@stellar/stellar-sdk@11.3.0", "@stellar/stellar-sdk@^11.3.0":
   version "11.3.0"
   resolved "https://registry.yarnpkg.com/@stellar/stellar-sdk/-/stellar-sdk-11.3.0.tgz#7cb010651846a07e1853e0fe30e430ece4da340b"
   integrity sha512-i+heopibJNRA7iM8rEPz0AXphBPYvy2HDo8rxbDwWpozwCfw8kglP9cLkkhgJe8YicgLrdExz/iQZaLpqLC+6w==
@@ -3483,7 +3461,7 @@ axios@0.25.0:
   dependencies:
     follow-redirects "^1.14.7"
 
-axios@^1.4.0, axios@^1.6.5, axios@^1.6.8:
+axios@^1.4.0, axios@^1.6.8:
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
   integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
@@ -10299,8 +10277,8 @@ toidentifier@1.0.1:
 "token-swap@file:./token-swap":
   version "0.0.0"
   dependencies:
-    "@stellar/freighter-api" "1.7.1"
-    "@stellar/stellar-sdk" "11.2.0"
+    "@stellar/freighter-api" "2.0.0"
+    "@stellar/stellar-sdk" "11.3.0"
     buffer "6.0.3"
 
 toml@^2.3.0:

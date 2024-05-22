@@ -1,6 +1,10 @@
 import { ContractSpec, Address } from '@stellar/stellar-sdk';
 import { Buffer } from "buffer";
-import { AssembledTransaction, Ok, Err } from './assembled-tx.js';
+import {
+  AssembledTransaction,
+  ContractClient,
+  ContractClientOptions,
+} from '@stellar/stellar-sdk/lib/contract_client/index.js';
 import type {
   u32,
   i32,
@@ -13,13 +17,11 @@ import type {
   Option,
   Typepoint,
   Duration,
-  Error_,
-  Result,
-} from './assembled-tx.js';
-import type { ClassOptions, XDR_BASE64 } from './method-options.js';
-
-export * from './assembled-tx.js';
-export * from './method-options.js';
+} from '@stellar/stellar-sdk/lib/contract_client';
+import { Result } from '@stellar/stellar-sdk/lib/rust_types/index.js';
+export * from '@stellar/stellar-sdk'
+export * from '@stellar/stellar-sdk/lib/contract_client/index.js'
+export * from '@stellar/stellar-sdk/lib/rust_types/index.js'
 
 if (typeof window !== 'undefined') {
     //@ts-ignore Buffer exists
@@ -28,29 +30,18 @@ if (typeof window !== 'undefined') {
 
 
 export const networks = {
-    futurenet: {
-        networkPassphrase: "Test SDF Future Network ; October 2022",
-        contractId: "CDN3IVMG5SURVFFY53WW5FUJNOS5TXKLXNLIAEYPKGIAHDUHQ6FRTBLP",
-    }
+  unknown: {
+    networkPassphrase: "Public Global Stellar Network ; September 2015",
+    contractId: "CBOC24RLZHETOADX2KHKO5WWV4K6E3DKX6T5SUUPKJXI6JC2SSX47BUI",
+  }
 } as const
 
-/**
-    
-    */
+
 export interface FeeInfo {
-  /**
-    
-    */
-fee_rate: u32;
-  /**
-    
-    */
-fee_wallet: string;
+  fee_rate: u32;
+  fee_wallet: string;
 }
 
-/**
-    
-    */
 export enum OfferStatus {
   INIT = 0,
   ACTIVE = 1,
@@ -58,79 +49,317 @@ export enum OfferStatus {
   CANCEL = 3,
 }
 
-/**
-    
-    */
+
 export interface OfferInfo {
-  /**
-    
-    */
-min_recv_amount: u64;
-  /**
-    
-    */
-offeror: string;
-  /**
-    
-    */
-recv_amount: u64;
-  /**
-    
-    */
-recv_token: string;
-  /**
-    
-    */
-send_amount: u64;
-  /**
-    
-    */
-send_token: string;
-  /**
-    
-    */
-status: OfferStatus;
+  min_recv_amount: u64;
+  offeror: string;
+  recv_amount: u64;
+  recv_token: string;
+  send_amount: u64;
+  send_token: string;
+  status: OfferStatus;
 }
 
-/**
-    
-    */
+
 export interface OfferKey {
-  /**
-    
-    */
-offeror: string;
-  /**
-    
-    */
-recv_token: string;
-  /**
-    
-    */
-send_token: string;
-  /**
-    
-    */
-timestamp: u32;
+  offeror: string;
+  recv_token: string;
+  send_token: string;
+  timestamp: u32;
 }
 
-/**
-    
-    */
 export type DataKey = {tag: "FEE", values: void} | {tag: "Allowance", values: readonly [string]} | {tag: "OfferCount", values: void} | {tag: "RegOffers", values: readonly [u32]} | {tag: "ErrorCode", values: void} | {tag: "Admin", values: void};
 
-/**
-    
-    */
 export const Errors = {
-
+  
 }
 
-export class Contract {
-    spec: ContractSpec;
-    constructor(public readonly options: ClassOptions) {
-        this.spec = new ContractSpec([
-            "AAAAAQAAAAAAAAAAAAAAB0ZlZUluZm8AAAAAAgAAAAAAAAAIZmVlX3JhdGUAAAAEAAAAAAAAAApmZWVfd2FsbGV0AAAAAAAT",
+export interface Client {
+  /**
+   * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  initialize: ({admin}: {admin: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a set_admin transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  set_admin: ({new_admin}: {new_admin: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a set_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  set_fee: ({fee_rate, fee_wallet}: {fee_rate: u32, fee_wallet: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a get_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  get_fee: (options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<readonly [u32, string]>>
+
+  /**
+   * Construct and simulate a allow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  allow_token: ({token}: {token: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a disallow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  disallow_token: ({token}: {token: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a get_error transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  get_error: (options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a count_offers transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  count_offers: (options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a create_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  create_offer: ({offeror, send_token, recv_token, timestamp, send_amount, recv_amount, min_recv_amount}: {offeror: string, send_token: string, recv_token: string, timestamp: u32, send_amount: u64, recv_amount: u64, min_recv_amount: u64}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a accept_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  accept_offer: ({acceptor, offer_id, amount}: {acceptor: string, offer_id: u32, amount: u64}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a update_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  update_offer: ({offeror, offer_id, recv_amount, min_recv_amount}: {offeror: string, offer_id: u32, recv_amount: u64, min_recv_amount: u64}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a close_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  close_offer: ({offeror, offer_id}: {offeror: string, offer_id: u32}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<u32>>
+
+  /**
+   * Construct and simulate a load_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  load_offer: ({offer_id}: {offer_id: u32}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<readonly [string, string, string, u64, u64, u64, u32]>>
+
+  /**
+   * Construct and simulate a check_balances transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  check_balances: ({account, send_token, recv_token}: {account: string, send_token: string, recv_token: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<readonly [u64, u64]>>
+
+}
+export class Client extends ContractClient {
+  constructor(public readonly options: ContractClientOptions) {
+    super(
+      new ContractSpec([ "AAAAAQAAAAAAAAAAAAAAB0ZlZUluZm8AAAAAAgAAAAAAAAAIZmVlX3JhdGUAAAAEAAAAAAAAAApmZWVfd2FsbGV0AAAAAAAT",
         "AAAAAwAAAAAAAAAAAAAAC09mZmVyU3RhdHVzAAAAAAQAAAAAAAAABElOSVQAAAAAAAAAAAAAAAZBQ1RJVkUAAAAAAAEAAAAAAAAACENPTVBMRVRFAAAAAgAAAAAAAAAGQ0FOQ0VMAAAAAAAD",
         "AAAAAQAAAAAAAAAAAAAACU9mZmVySW5mbwAAAAAAAAcAAAAAAAAAD21pbl9yZWN2X2Ftb3VudAAAAAAGAAAAAAAAAAdvZmZlcm9yAAAAABMAAAAAAAAAC3JlY3ZfYW1vdW50AAAAAAYAAAAAAAAACnJlY3ZfdG9rZW4AAAAAABMAAAAAAAAAC3NlbmRfYW1vdW50AAAAAAYAAAAAAAAACnNlbmRfdG9rZW4AAAAAABMAAAAAAAAABnN0YXR1cwAAAAAH0AAAAAtPZmZlclN0YXR1cwA=",
         "AAAAAQAAAAAAAAAAAAAACE9mZmVyS2V5AAAABAAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAApyZWN2X3Rva2VuAAAAAAATAAAAAAAAAApzZW5kX3Rva2VuAAAAAAATAAAAAAAAAAl0aW1lc3RhbXAAAAAAAAAE",
@@ -148,329 +377,24 @@ export class Contract {
         "AAAAAAAAAAAAAAAMdXBkYXRlX29mZmVyAAAABAAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAAhvZmZlcl9pZAAAAAQAAAAAAAAAC3JlY3ZfYW1vdW50AAAAAAYAAAAAAAAAD21pbl9yZWN2X2Ftb3VudAAAAAAGAAAAAQAAAAQ=",
         "AAAAAAAAAAAAAAALY2xvc2Vfb2ZmZXIAAAAAAgAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAAhvZmZlcl9pZAAAAAQAAAABAAAABA==",
         "AAAAAAAAAAAAAAAKbG9hZF9vZmZlcgAAAAAAAQAAAAAAAAAIb2ZmZXJfaWQAAAAEAAAAAQAAA+0AAAAHAAAAEwAAABMAAAATAAAABgAAAAYAAAAGAAAABA==",
-        "AAAAAAAAAAAAAAAOY2hlY2tfYmFsYW5jZXMAAAAAAAMAAAAAAAAAB2FjY291bnQAAAAAEwAAAAAAAAAKc2VuZF90b2tlbgAAAAAAEwAAAAAAAAAKcmVjdl90b2tlbgAAAAAAEwAAAAEAAAPtAAAAAgAAAAYAAAAG"
-        ]);
-    }
-    private readonly parsers = {
-        initialize: () => {},
-        setAdmin: () => {},
-        setFee: () => {},
-        getFee: (result: XDR_BASE64): readonly [u32, string] => this.spec.funcResToNative("get_fee", result),
-        allowToken: () => {},
-        disallowToken: () => {},
-        getError: (result: XDR_BASE64): u32 => this.spec.funcResToNative("get_error", result),
-        countOffers: (result: XDR_BASE64): u32 => this.spec.funcResToNative("count_offers", result),
-        createOffer: (result: XDR_BASE64): u32 => this.spec.funcResToNative("create_offer", result),
-        acceptOffer: (result: XDR_BASE64): u32 => this.spec.funcResToNative("accept_offer", result),
-        updateOffer: (result: XDR_BASE64): u32 => this.spec.funcResToNative("update_offer", result),
-        closeOffer: (result: XDR_BASE64): u32 => this.spec.funcResToNative("close_offer", result),
-        loadOffer: (result: XDR_BASE64): readonly [string, string, string, u64, u64, u64, u32] => this.spec.funcResToNative("load_offer", result),
-        checkBalances: (result: XDR_BASE64): readonly [u64, u64] => this.spec.funcResToNative("check_balances", result)
-    };
-    private txFromJSON = <T>(json: string): AssembledTransaction<T> => {
-        const { method, ...tx } = JSON.parse(json)
-        return AssembledTransaction.fromJSON(
-            {
-                ...this.options,
-                method,
-                parseResultXdr: this.parsers[method],
-            },
-            tx,
-        );
-    }
-    public readonly fromJSON = {
-        initialize: this.txFromJSON<ReturnType<typeof this.parsers['initialize']>>,
-        setAdmin: this.txFromJSON<ReturnType<typeof this.parsers['setAdmin']>>,
-        setFee: this.txFromJSON<ReturnType<typeof this.parsers['setFee']>>,
-        getFee: this.txFromJSON<ReturnType<typeof this.parsers['getFee']>>,
-        allowToken: this.txFromJSON<ReturnType<typeof this.parsers['allowToken']>>,
-        disallowToken: this.txFromJSON<ReturnType<typeof this.parsers['disallowToken']>>,
-        getError: this.txFromJSON<ReturnType<typeof this.parsers['getError']>>,
-        countOffers: this.txFromJSON<ReturnType<typeof this.parsers['countOffers']>>,
-        createOffer: this.txFromJSON<ReturnType<typeof this.parsers['createOffer']>>,
-        acceptOffer: this.txFromJSON<ReturnType<typeof this.parsers['acceptOffer']>>,
-        updateOffer: this.txFromJSON<ReturnType<typeof this.parsers['updateOffer']>>,
-        closeOffer: this.txFromJSON<ReturnType<typeof this.parsers['closeOffer']>>,
-        loadOffer: this.txFromJSON<ReturnType<typeof this.parsers['loadOffer']>>,
-        checkBalances: this.txFromJSON<ReturnType<typeof this.parsers['checkBalances']>>
-    }
-        /**
-    * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    initialize = async ({admin}: {admin: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'initialize',
-            args: this.spec.funcArgsToScVals("initialize", {admin: new Address(admin)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['initialize'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a set_admin transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    setAdmin = async ({new_admin}: {new_admin: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'set_admin',
-            args: this.spec.funcArgsToScVals("set_admin", {new_admin: new Address(new_admin)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['setAdmin'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a set_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    setFee = async ({fee_rate, fee_wallet}: {fee_rate: u32, fee_wallet: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'set_fee',
-            args: this.spec.funcArgsToScVals("set_fee", {fee_rate, fee_wallet: new Address(fee_wallet)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['setFee'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a get_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    getFee = async (options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'get_fee',
-            args: this.spec.funcArgsToScVals("get_fee", {}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['getFee'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a allow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    allowToken = async ({token}: {token: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'allow_token',
-            args: this.spec.funcArgsToScVals("allow_token", {token: new Address(token)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['allowToken'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a disallow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    disallowToken = async ({token}: {token: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'disallow_token',
-            args: this.spec.funcArgsToScVals("disallow_token", {token: new Address(token)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['disallowToken'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a get_error transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    getError = async (options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'get_error',
-            args: this.spec.funcArgsToScVals("get_error", {}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['getError'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a count_offers transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    countOffers = async (options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'count_offers',
-            args: this.spec.funcArgsToScVals("count_offers", {}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['countOffers'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a create_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    createOffer = async ({offeror, send_token, recv_token, timestamp, send_amount, recv_amount, min_recv_amount}: {offeror: string, send_token: string, recv_token: string, timestamp: u32, send_amount: u64, recv_amount: u64, min_recv_amount: u64}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'create_offer',
-            args: this.spec.funcArgsToScVals("create_offer", {offeror: new Address(offeror), send_token: new Address(send_token), recv_token: new Address(recv_token), timestamp, send_amount, recv_amount, min_recv_amount}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['createOffer'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a accept_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    acceptOffer = async ({acceptor, offer_id, amount}: {acceptor: string, offer_id: u32, amount: u64}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'accept_offer',
-            args: this.spec.funcArgsToScVals("accept_offer", {acceptor: new Address(acceptor), offer_id, amount}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['acceptOffer'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a update_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    updateOffer = async ({offeror, offer_id, recv_amount, min_recv_amount}: {offeror: string, offer_id: u32, recv_amount: u64, min_recv_amount: u64}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'update_offer',
-            args: this.spec.funcArgsToScVals("update_offer", {offeror: new Address(offeror), offer_id, recv_amount, min_recv_amount}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['updateOffer'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a close_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    closeOffer = async ({offeror, offer_id}: {offeror: string, offer_id: u32}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'close_offer',
-            args: this.spec.funcArgsToScVals("close_offer", {offeror: new Address(offeror), offer_id}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['closeOffer'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a load_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    loadOffer = async ({offer_id}: {offer_id: u32}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'load_offer',
-            args: this.spec.funcArgsToScVals("load_offer", {offer_id}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['loadOffer'],
-        });
-    }
-
-
-        /**
-    * Construct and simulate a check_balances transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    checkBalances = async ({account, send_token, recv_token}: {account: string, send_token: string, recv_token: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'check_balances',
-            args: this.spec.funcArgsToScVals("check_balances", {account: new Address(account), send_token: new Address(send_token), recv_token: new Address(recv_token)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['checkBalances'],
-        });
-    }
-
+        "AAAAAAAAAAAAAAAOY2hlY2tfYmFsYW5jZXMAAAAAAAMAAAAAAAAAB2FjY291bnQAAAAAEwAAAAAAAAAKc2VuZF90b2tlbgAAAAAAEwAAAAAAAAAKcmVjdl90b2tlbgAAAAAAEwAAAAEAAAPtAAAAAgAAAAYAAAAG" ]),
+      options
+    )
+  }
+  public readonly fromJSON = {
+    initialize: this.txFromJSON<null>,
+        set_admin: this.txFromJSON<null>,
+        set_fee: this.txFromJSON<null>,
+        get_fee: this.txFromJSON<readonly [u32, string]>,
+        allow_token: this.txFromJSON<null>,
+        disallow_token: this.txFromJSON<null>,
+        get_error: this.txFromJSON<u32>,
+        count_offers: this.txFromJSON<u32>,
+        create_offer: this.txFromJSON<u32>,
+        accept_offer: this.txFromJSON<u32>,
+        update_offer: this.txFromJSON<u32>,
+        close_offer: this.txFromJSON<u32>,
+        load_offer: this.txFromJSON<readonly [string, string, string, u64, u64, u64, u32]>,
+        check_balances: this.txFromJSON<readonly [u64, u64]>
+  }
 }

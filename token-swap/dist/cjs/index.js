@@ -14,25 +14,23 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Contract = exports.Errors = exports.OfferStatus = exports.networks = void 0;
+exports.Client = exports.Errors = exports.OfferStatus = exports.networks = void 0;
 const stellar_sdk_1 = require("@stellar/stellar-sdk");
 const buffer_1 = require("buffer");
-const assembled_tx_js_1 = require("./assembled-tx.js");
-__exportStar(require("./assembled-tx.js"), exports);
-__exportStar(require("./method-options.js"), exports);
+const index_js_1 = require("@stellar/stellar-sdk/lib/contract_client/index.js");
+__exportStar(require("@stellar/stellar-sdk"), exports);
+__exportStar(require("@stellar/stellar-sdk/lib/contract_client/index.js"), exports);
+__exportStar(require("@stellar/stellar-sdk/lib/rust_types/index.js"), exports);
 if (typeof window !== 'undefined') {
     //@ts-ignore Buffer exists
     window.Buffer = window.Buffer || buffer_1.Buffer;
 }
 exports.networks = {
-    futurenet: {
-        networkPassphrase: "Test SDF Future Network ; October 2022",
-        contractId: "CDN3IVMG5SURVFFY53WW5FUJNOS5TXKLXNLIAEYPKGIAHDUHQ6FRTBLP",
+    unknown: {
+        networkPassphrase: "Public Global Stellar Network ; September 2015",
+        contractId: "CBOC24RLZHETOADX2KHKO5WWV4K6E3DKX6T5SUUPKJXI6JC2SSX47BUI",
     }
 };
-/**
-    
-    */
 var OfferStatus;
 (function (OfferStatus) {
     OfferStatus[OfferStatus["INIT"] = 0] = "INIT";
@@ -40,17 +38,11 @@ var OfferStatus;
     OfferStatus[OfferStatus["COMPLETE"] = 2] = "COMPLETE";
     OfferStatus[OfferStatus["CANCEL"] = 3] = "CANCEL";
 })(OfferStatus || (exports.OfferStatus = OfferStatus = {}));
-/**
-    
-    */
 exports.Errors = {};
-class Contract {
+class Client extends index_js_1.ContractClient {
     options;
-    spec;
     constructor(options) {
-        this.options = options;
-        this.spec = new stellar_sdk_1.ContractSpec([
-            "AAAAAQAAAAAAAAAAAAAAB0ZlZUluZm8AAAAAAgAAAAAAAAAIZmVlX3JhdGUAAAAEAAAAAAAAAApmZWVfd2FsbGV0AAAAAAAT",
+        super(new stellar_sdk_1.ContractSpec(["AAAAAQAAAAAAAAAAAAAAB0ZlZUluZm8AAAAAAgAAAAAAAAAIZmVlX3JhdGUAAAAEAAAAAAAAAApmZWVfd2FsbGV0AAAAAAAT",
             "AAAAAwAAAAAAAAAAAAAAC09mZmVyU3RhdHVzAAAAAAQAAAAAAAAABElOSVQAAAAAAAAAAAAAAAZBQ1RJVkUAAAAAAAEAAAAAAAAACENPTVBMRVRFAAAAAgAAAAAAAAAGQ0FOQ0VMAAAAAAAD",
             "AAAAAQAAAAAAAAAAAAAACU9mZmVySW5mbwAAAAAAAAcAAAAAAAAAD21pbl9yZWN2X2Ftb3VudAAAAAAGAAAAAAAAAAdvZmZlcm9yAAAAABMAAAAAAAAAC3JlY3ZfYW1vdW50AAAAAAYAAAAAAAAACnJlY3ZfdG9rZW4AAAAAABMAAAAAAAAAC3NlbmRfYW1vdW50AAAAAAYAAAAAAAAACnNlbmRfdG9rZW4AAAAAABMAAAAAAAAABnN0YXR1cwAAAAAH0AAAAAtPZmZlclN0YXR1cwA=",
             "AAAAAQAAAAAAAAAAAAAACE9mZmVyS2V5AAAABAAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAApyZWN2X3Rva2VuAAAAAAATAAAAAAAAAApzZW5kX3Rva2VuAAAAAAATAAAAAAAAAAl0aW1lc3RhbXAAAAAAAAAE",
@@ -68,230 +60,24 @@ class Contract {
             "AAAAAAAAAAAAAAAMdXBkYXRlX29mZmVyAAAABAAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAAhvZmZlcl9pZAAAAAQAAAAAAAAAC3JlY3ZfYW1vdW50AAAAAAYAAAAAAAAAD21pbl9yZWN2X2Ftb3VudAAAAAAGAAAAAQAAAAQ=",
             "AAAAAAAAAAAAAAALY2xvc2Vfb2ZmZXIAAAAAAgAAAAAAAAAHb2ZmZXJvcgAAAAATAAAAAAAAAAhvZmZlcl9pZAAAAAQAAAABAAAABA==",
             "AAAAAAAAAAAAAAAKbG9hZF9vZmZlcgAAAAAAAQAAAAAAAAAIb2ZmZXJfaWQAAAAEAAAAAQAAA+0AAAAHAAAAEwAAABMAAAATAAAABgAAAAYAAAAGAAAABA==",
-            "AAAAAAAAAAAAAAAOY2hlY2tfYmFsYW5jZXMAAAAAAAMAAAAAAAAAB2FjY291bnQAAAAAEwAAAAAAAAAKc2VuZF90b2tlbgAAAAAAEwAAAAAAAAAKcmVjdl90b2tlbgAAAAAAEwAAAAEAAAPtAAAAAgAAAAYAAAAG"
-        ]);
+            "AAAAAAAAAAAAAAAOY2hlY2tfYmFsYW5jZXMAAAAAAAMAAAAAAAAAB2FjY291bnQAAAAAEwAAAAAAAAAKc2VuZF90b2tlbgAAAAAAEwAAAAAAAAAKcmVjdl90b2tlbgAAAAAAEwAAAAEAAAPtAAAAAgAAAAYAAAAG"]), options);
+        this.options = options;
     }
-    parsers = {
-        initialize: () => { },
-        setAdmin: () => { },
-        setFee: () => { },
-        getFee: (result) => this.spec.funcResToNative("get_fee", result),
-        allowToken: () => { },
-        disallowToken: () => { },
-        getError: (result) => this.spec.funcResToNative("get_error", result),
-        countOffers: (result) => this.spec.funcResToNative("count_offers", result),
-        createOffer: (result) => this.spec.funcResToNative("create_offer", result),
-        acceptOffer: (result) => this.spec.funcResToNative("accept_offer", result),
-        updateOffer: (result) => this.spec.funcResToNative("update_offer", result),
-        closeOffer: (result) => this.spec.funcResToNative("close_offer", result),
-        loadOffer: (result) => this.spec.funcResToNative("load_offer", result),
-        checkBalances: (result) => this.spec.funcResToNative("check_balances", result)
-    };
-    txFromJSON = (json) => {
-        const { method, ...tx } = JSON.parse(json);
-        return assembled_tx_js_1.AssembledTransaction.fromJSON({
-            ...this.options,
-            method,
-            parseResultXdr: this.parsers[method],
-        }, tx);
-    };
     fromJSON = {
         initialize: (this.txFromJSON),
-        setAdmin: (this.txFromJSON),
-        setFee: (this.txFromJSON),
-        getFee: (this.txFromJSON),
-        allowToken: (this.txFromJSON),
-        disallowToken: (this.txFromJSON),
-        getError: (this.txFromJSON),
-        countOffers: (this.txFromJSON),
-        createOffer: (this.txFromJSON),
-        acceptOffer: (this.txFromJSON),
-        updateOffer: (this.txFromJSON),
-        closeOffer: (this.txFromJSON),
-        loadOffer: (this.txFromJSON),
-        checkBalances: (this.txFromJSON)
-    };
-    /**
-* Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    initialize = async ({ admin }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'initialize',
-            args: this.spec.funcArgsToScVals("initialize", { admin: new stellar_sdk_1.Address(admin) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['initialize'],
-        });
-    };
-    /**
-* Construct and simulate a set_admin transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    setAdmin = async ({ new_admin }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'set_admin',
-            args: this.spec.funcArgsToScVals("set_admin", { new_admin: new stellar_sdk_1.Address(new_admin) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['setAdmin'],
-        });
-    };
-    /**
-* Construct and simulate a set_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    setFee = async ({ fee_rate, fee_wallet }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'set_fee',
-            args: this.spec.funcArgsToScVals("set_fee", { fee_rate, fee_wallet: new stellar_sdk_1.Address(fee_wallet) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['setFee'],
-        });
-    };
-    /**
-* Construct and simulate a get_fee transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    getFee = async (options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'get_fee',
-            args: this.spec.funcArgsToScVals("get_fee", {}),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['getFee'],
-        });
-    };
-    /**
-* Construct and simulate a allow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    allowToken = async ({ token }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'allow_token',
-            args: this.spec.funcArgsToScVals("allow_token", { token: new stellar_sdk_1.Address(token) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['allowToken'],
-        });
-    };
-    /**
-* Construct and simulate a disallow_token transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    disallowToken = async ({ token }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'disallow_token',
-            args: this.spec.funcArgsToScVals("disallow_token", { token: new stellar_sdk_1.Address(token) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['disallowToken'],
-        });
-    };
-    /**
-* Construct and simulate a get_error transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    getError = async (options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'get_error',
-            args: this.spec.funcArgsToScVals("get_error", {}),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['getError'],
-        });
-    };
-    /**
-* Construct and simulate a count_offers transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    countOffers = async (options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'count_offers',
-            args: this.spec.funcArgsToScVals("count_offers", {}),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['countOffers'],
-        });
-    };
-    /**
-* Construct and simulate a create_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    createOffer = async ({ offeror, send_token, recv_token, timestamp, send_amount, recv_amount, min_recv_amount }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'create_offer',
-            args: this.spec.funcArgsToScVals("create_offer", { offeror: new stellar_sdk_1.Address(offeror), send_token: new stellar_sdk_1.Address(send_token), recv_token: new stellar_sdk_1.Address(recv_token), timestamp, send_amount, recv_amount, min_recv_amount }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['createOffer'],
-        });
-    };
-    /**
-* Construct and simulate a accept_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    acceptOffer = async ({ acceptor, offer_id, amount }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'accept_offer',
-            args: this.spec.funcArgsToScVals("accept_offer", { acceptor: new stellar_sdk_1.Address(acceptor), offer_id, amount }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['acceptOffer'],
-        });
-    };
-    /**
-* Construct and simulate a update_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    updateOffer = async ({ offeror, offer_id, recv_amount, min_recv_amount }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'update_offer',
-            args: this.spec.funcArgsToScVals("update_offer", { offeror: new stellar_sdk_1.Address(offeror), offer_id, recv_amount, min_recv_amount }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['updateOffer'],
-        });
-    };
-    /**
-* Construct and simulate a close_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    closeOffer = async ({ offeror, offer_id }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'close_offer',
-            args: this.spec.funcArgsToScVals("close_offer", { offeror: new stellar_sdk_1.Address(offeror), offer_id }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['closeOffer'],
-        });
-    };
-    /**
-* Construct and simulate a load_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    loadOffer = async ({ offer_id }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'load_offer',
-            args: this.spec.funcArgsToScVals("load_offer", { offer_id }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['loadOffer'],
-        });
-    };
-    /**
-* Construct and simulate a check_balances transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-*/
-    checkBalances = async ({ account, send_token, recv_token }, options = {}) => {
-        return await assembled_tx_js_1.AssembledTransaction.fromSimulation({
-            method: 'check_balances',
-            args: this.spec.funcArgsToScVals("check_balances", { account: new stellar_sdk_1.Address(account), send_token: new stellar_sdk_1.Address(send_token), recv_token: new stellar_sdk_1.Address(recv_token) }),
-            ...options,
-            ...this.options,
-            errorTypes: exports.Errors,
-            parseResultXdr: this.parsers['checkBalances'],
-        });
+        set_admin: (this.txFromJSON),
+        set_fee: (this.txFromJSON),
+        get_fee: (this.txFromJSON),
+        allow_token: (this.txFromJSON),
+        disallow_token: (this.txFromJSON),
+        get_error: (this.txFromJSON),
+        count_offers: (this.txFromJSON),
+        create_offer: (this.txFromJSON),
+        accept_offer: (this.txFromJSON),
+        update_offer: (this.txFromJSON),
+        close_offer: (this.txFromJSON),
+        load_offer: (this.txFromJSON),
+        check_balances: (this.txFromJSON)
     };
 }
-exports.Contract = Contract;
+exports.Client = Client;
