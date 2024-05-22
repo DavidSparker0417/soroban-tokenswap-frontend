@@ -71,15 +71,16 @@ async function executeTransaction(operation: StellarSdk.xdr.Operation<StellarSdk
         .addMemo(StellarSdk.Memo.text("Testing"))
         .setTimeout(180)
         .build();
-    console.log(`[CRYPTOPRINCE]executeTransaction on ${CONTRACT_ID} ...`);
+    console.log(`[CRYPTOPRINCE] executeTransaction on ${CONTRACT_ID} ...`);
     const transaction = await server.prepareTransaction(transaction0);
-    // transaction.sign(accKeypair);
+    console.log(`[CRYPTOPRINCE] signing transaction ...`);
     const signedXDR = await freighter.signTransaction(transaction.toXDR(), {
         networkPassphrase: PASSPHRASE,
     });
     const txEnvelope = StellarSdk.xdr.TransactionEnvelope.fromXDR(signedXDR, 'base64');
     const tx = new StellarSdk.Transaction(txEnvelope, PASSPHRASE);
     try {
+        console.log(`[CRYPTOPRINCE] sending transaction ...`);
         const response = await server.sendTransaction(tx);
         console.log('Sent! Transaction Hash:', response.hash);
         // Poll this until the status is not "pending"
@@ -188,7 +189,6 @@ function Main() {
             }} />
             <button onClick={async () => {
                 const contract = new StellarSdk.Contract(CONTRACT_ID);
-                console.log(`[DAVID] -------- set_fee (pubKey = ${await freighter.getPublicKey()}) ------`);
                 const res = await executeTransaction(
                     contract.call("set_fee",
                         StellarSdk.xdr.ScVal.scvU32(fee * 100),
