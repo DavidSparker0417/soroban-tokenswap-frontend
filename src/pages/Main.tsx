@@ -48,7 +48,7 @@ async function approve(tokenId: string, amount: number) {
     const attributes = resp?.result?.retval?._value?._attributes;
     const allowdValStr = String(attributes?.hi?._value) + String(attributes?.lo?._value);
     const currentAllowed = parseInt(allowdValStr, 10);
-    console.log(`[CRYPTOPRINCE]APPROVE RESP = ${currentAllowed}`);
+    console.log(`[CRYPTOPRINCE] APPROVE RESP = ${currentAllowed}, currentSeq = ${latestLedger.sequence}`);
 
     if (amount > currentAllowed) {
         const res = await executeTransaction(
