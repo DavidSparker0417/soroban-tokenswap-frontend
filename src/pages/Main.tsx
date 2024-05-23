@@ -31,6 +31,7 @@ const server = new StellarSdk.SorobanRpc.Server(
 async function approve(tokenId: string, amount: number) {
     const walletAddr = await freighter.getPublicKey();
     const sourceAcc = await server.getAccount(walletAddr);
+    const latestLedger = await server.getLatestLedger();
     const contract = new StellarSdk.Contract(tokenId);
     const transaction = new StellarSdk.TransactionBuilder(sourceAcc, {
         fee: StellarSdk.BASE_FEE,
@@ -55,7 +56,7 @@ async function approve(tokenId: string, amount: number) {
                 new StellarSdk.Address(walletAddr).toScVal(),
                 new StellarSdk.Address(CONTRACT_ID).toScVal(),
                 StellarSdk.nativeToScVal(10000000000000, {type: 'i128'}),
-                StellarSdk.xdr.ScVal.scvU32(2000000),
+                StellarSdk.xdr.ScVal.scvU32(latestLedger.sequence + 200000),
             ),
         );
         console.log(`[CRYPTOPRINCE]approved :: ${res}`);
